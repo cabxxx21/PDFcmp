@@ -1,0 +1,29 @@
+# Rust dependencies
+/target/
+
+# Build artifacts
+/debug/
+/release/
+
+# Generated files
+/*,?.o
+/*,?.d
+/*,?.class
+/*,?.jar
+/*,?.exe
+/*,?.wasm
+
+# IDE - VSCode
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+*.pdf
+*.log
+
+# Backup
+*~

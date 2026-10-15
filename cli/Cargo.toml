@@ -1,0 +1,32 @@
+[package]
+name = "pdfcmp"
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+description = "Lightweight, cross-distro PDF compressor for Linux - CLI"
+repository = { workspace = true }
+authors = { workspace = true }
+
+[[bin]]
+name = "pdfcmp"
+path = "src/main.rs"
+
+[dependencies]
+pdf_compressor_core = { path = "../core" }
+anyhow = { workspace = true }
+clap = { workspace = true }
+indicatif = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+rayon = { workspace = true }
+humantime = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+walkdir = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[features]
+default = []
+gui = []

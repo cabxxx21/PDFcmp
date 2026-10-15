@@ -1,6 +1,6 @@
 # PDF Compressor (`pdfcmp`)
 
-A simple, beginner-friendly PDF compressor for Linux, built with Rust, Ghostscript, and MuPDF. Designed to reduce PDF file sizes through a straightforward command-line interface.
+A lightweight PDF compressor for Linux, built with Rust, Ghostscript, and MuPDF. Designed to reduce PDF file sizes through a straightforward command-line interface.
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ pdfcmp document.pdf -f
 
 ### Build from Source
 
-**Requirements:** Rust toolchain and the required system libraries for building the MuPDF backend.
+**Requirements:** Rust toolchain and the dependencies required to build the MuPDF backend.
 
 ```bash
 git clone https://github.com/cabxxx21/PDFcmp.git
@@ -33,9 +33,7 @@ cd PDFcmp
 cargo install --path cli
 ```
 
-Ghostscript is recommended for stronger image compression.
-
-Install it using your distribution's package manager:
+Ghostscript is recommended for stronger image compression. Install it using your distribution's package manager.
 
 ```bash
 # Arch Linux
@@ -51,10 +49,44 @@ sudo dnf install ghostscript
 sudo apk add ghostscript
 ```
 
-After installation, make sure Cargo's binary directory is in your `PATH`:
+Make sure Cargo's binary directory is included in your `PATH`.
 
 ```bash
 export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+## Project Structure
+
+```text
+PDFcmp/
+├── cli/
+│   ├── src/
+│   │   ├── args.rs
+│   │   ├── batch.rs
+│   │   ├── main.rs
+│   │   └── output.rs
+│   └── Cargo.toml
+├── core/
+│   ├── src/
+│   │   ├── backend/
+│   │   │   ├── ghostscript.rs
+│   │   │   ├── mod.rs
+│   │   │   └── mupdf.rs
+│   │   ├── error.rs
+│   │   ├── lib.rs
+│   │   ├── options.rs
+│   │   ├── stats.rs
+│   │   └── util.rs
+│   └── Cargo.toml
+├── tests/
+│   └── integration.rs
+├── .gitignore
+├── Cargo.lock
+├── Cargo.toml
+├── LICENSE
+├── README.md
+├── build-release.sh
+└── install.sh
 ```
 
 ## Features
@@ -152,7 +184,7 @@ pdfcmp document.pdf --no-progress
 
 Compression performance varies depending on image resolution, embedded fonts, existing compression, and document structure.
 
-For reference, tests on sample PDFs have demonstrated file-size reductions ranging from approximately 26% to 88%. These figures are examples from individual test files, not guaranteed results.
+Tests on sample PDFs have demonstrated file-size reductions ranging from approximately 26% to 88%. These are results from individual test files, not guaranteed results for every document.
 
 Always inspect the output document to ensure that its visual quality remains suitable for your needs.
 
@@ -160,45 +192,30 @@ Always inspect the output document to ensure that its visual quality remains sui
 
 `pdfcmp` provides a command-line interface backed by a Rust core library.
 
-```text
-User Command
-     |
-     v
-CLI Argument Parsing
-     |
-     v
-Rust Core
-     |
-     +---- Ghostscript Backend
-     |       Image downsampling
-     |       Image recompression
-     |       PDF rewriting
-     |
-     +---- MuPDF Backend
-             PDF optimization
-             Stream compression
-             Garbage collection
-     |
-     v
-Compressed PDF + Statistics
-```
+The CLI handles user input and batch processing, while the core library manages compression options, backend selection, error handling, and statistics.
 
-### Ghostscript
+### Ghostscript Backend
 
-Ghostscript is the recommended backend for image-heavy documents. It can downsample and recompress images while rewriting the PDF.
+Ghostscript is recommended for image-heavy documents. It can downsample and recompress images while rewriting the PDF.
 
-Ghostscript must be installed separately and available through the `gs` command.
+- Runs through the `gs` command.
+- Supports image downsampling and recompression.
+- Must be installed separately.
 
-### MuPDF
+### MuPDF Backend
 
-MuPDF provides an alternative backend for PDF optimization. Its compression results depend on the document and the transformations available through the library.
+MuPDF provides an alternative backend for PDF optimization.
 
-The MuPDF backend is integrated through Rust bindings, but build-time system requirements may vary by environment.
+- Integrated through Rust bindings.
+- Performs PDF optimization and stream compression.
+- Build-time requirements depend on the library configuration.
+
+Compression effectiveness varies by document and backend.
 
 ## Safety Features
 
-- Original input files are not modified.
-- Output files are written through a temporary-file workflow.
+- Original input files are not intentionally modified.
+- Output files use a temporary-file workflow.
 - Failed operations attempt to clean up incomplete output.
 - Existing output files are protected unless `--force` is used.
 - Encrypted PDFs that the application cannot process are rejected with an error.
@@ -229,7 +246,7 @@ Options:
   -h, --help              Print help information
 ```
 
-Run `pdfcmp --help` for the options supported by your installed version.
+Run `pdfcmp --help` to see the options supported by your installed version.
 
 ## Limitations
 
@@ -238,11 +255,13 @@ Run `pdfcmp --help` for the options supported by your installed version.
 - Does not flatten interactive PDF forms.
 - Compression effectiveness varies by document.
 - Parallel processing applies across files in batch mode, rather than necessarily speeding up an individual file.
-- Output quality should be checked when using aggressive compression presets.
+- Aggressive compression presets may reduce visual quality.
 
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+Third-party dependencies retain their respective licenses. See the relevant project documentation for details about Ghostscript and MuPDF licensing and distribution requirements.
 
 ## Credits
 

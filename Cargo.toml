@@ -9,7 +9,7 @@ exclude = ["gui"]
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
-license = "MIT OR Apache-2.0"
+license = "MIT"
 description = "Lightweight, cross-distro PDF compressor for Linux"
 repository = "https://github.com/cabxxx21/PDFcmp"
 authors = ["cabxp"]

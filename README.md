@@ -1,288 +1,276 @@
 # PDF Compressor (`pdfcmp`)
 
-A simple, beginner-friendly PDF compressor for Linux. Built with Rust and Ghostscript (with MuPDF fallback), distributed as a single ~8MB binary.
+A simple, beginner-friendly PDF compressor for Linux, built with Rust, Ghostscript, and MuPDF. Designed to reduce PDF file sizes through a straightforward command-line interface.
 
 ## Quick Start
 
 ```bash
-# Basic usage - compresses to input_compressed.pdf
+# Compress a PDF using the default preset
 pdfcmp document.pdf
 
-# Compress with screen preset (aggressive)
+# Compress aggressively for screen viewing
 pdfcmp document.pdf -p screen
 
-# Compress to specific output
+# Specify the output file
 pdfcmp large.pdf -o small.pdf -p ebook
 
-# Batch compress directory
+# Compress PDFs in a directory
 pdfcmp ~/Documents -r
 
-# Force overwrite existing file
-pdfcmp file.pdf -f
+# Allow overwriting existing output files
+pdfcmp document.pdf -f
 ```
 
-### Installation
+## Installation
 
-**Option 1: Build from source**
+### Build from Source
+
+**Requirements:** Rust toolchain and the required system libraries for building the MuPDF backend.
+
 ```bash
-git clone https://github.com/cabxxx21/PDFcmp
+git clone https://github.com/cabxxx21/PDFcmp.git
 cd PDFcmp
 cargo install --path cli
 ```
 
-**Option 2: Copy binary manually**
+Ghostscript is recommended for stronger image compression.
+
+Install it using your distribution's package manager:
+
 ```bash
-cp target/release/pdfcmp ~/.local/bin/pdfcmp
-# Make sure ~/.local/bin is in your PATH
+# Arch Linux
+sudo pacman -S ghostscript
+
+# Ubuntu / Debian
+sudo apt install ghostscript
+
+# Fedora
+sudo dnf install ghostscript
+
+# Alpine Linux
+sudo apk add ghostscript
 ```
 
-**Option 3: Use full path**
+After installation, make sure Cargo's binary directory is in your `PATH`:
+
 ```bash
-# Add to your shell config (~/.bashrc or ~/.zshrc)
-export PATH="$PATH:/path/to/pdfcompressor/target/release"
+export PATH="$HOME/.cargo/bin:$PATH"
 ```
 
 ## Features
 
-- ✅ **Simple CLI** - No subcommands needed
-- ✅ **Ghostscript backend** - 80%+ compression on image-heavy PDFs
-- ✅ **MuPDF fallback** - Works offline without Ghostscript
-- ✅ **Auto-detect mode** - Single file vs batch (directory)
-- ✅ **4 presets** - screen/ebook/printer/prepress
-- ✅ **Safety first** - Never overwrites originals without `--force`
-- ✅ **Accurate stats** - Shows size, savings %, duration
-- ✅ **Parallel batch** - Process multiple files at once
+- **Simple CLI:** Compress PDFs without complicated subcommands.
+- **Multiple backends:** Choose between Ghostscript and MuPDF.
+- **Compression presets:** Four presets for different quality and size requirements.
+- **Automatic mode selection:** Handles individual files and directories.
+- **Batch processing:** Process multiple PDFs in one operation.
+- **Parallel execution:** Configure the number of concurrent jobs.
+- **Output protection:** Existing files are preserved unless `--force` is specified.
+- **Compression statistics:** Display file sizes, savings, and processing duration.
+- **JSON output:** Produce machine-readable results for scripts.
 
-## Presets
+## Compression Presets
 
-| Preset | Quality | Use Case | Typical Savings |
-|--------|---------|----------|-----------------|
-| `screen` | 50% | Screen viewing only | 70-90% |
-| `ebook` | 70% | E-readers, tablets | 60-80% |
-| `printer` | 85% | Home/office printing | 30-50% |
-| `prepress` | 100% | Professional print | 10-30% |
+| Preset | Intended Use |
+|---|---|
+| `screen` | Smaller files for screen viewing |
+| `ebook` | Balanced size and quality for e-readers |
+| `printer` | Higher quality for everyday printing |
+| `prepress` | Quality-focused output for professional printing |
 
-**Default**: `ebook` (balanced quality/size)
+The default preset is `ebook`.
 
-## Usage Examples
+Actual compression results depend on the PDF's contents. Image-heavy documents may shrink considerably, while text-heavy or already-optimized PDFs may show little improvement.
 
-### Single File Compression
+## Usage
+
+### Compress a Single PDF
 
 ```bash
-# Basic (ebook preset, auto output name)
+# Use the default preset
 pdfcmp report.pdf
 
-# Aggressive (screen preset for email)
-pdfcmp large.pdf -p screen -o email.pdf
+# Reduce file size more aggressively
+pdfcmp report.pdf -p screen
 
-# High quality (printer preset)
-pdfcmp contract.pdf -p printer
+# Use higher-quality settings
+pdfcmp report.pdf -p printer
+
+# Choose a custom output filename
+pdfcmp report.pdf -o report_small.pdf
 ```
 
 ### Batch Processing
 
 ```bash
-# Compress all PDFs in directory
-pdfcmp /home/user/PDFs
+# Process PDFs in a directory
+pdfcmp ~/Documents
 
-# Recursive (includes subdirectories)
+# Include subdirectories
 pdfcmp ~/Documents -r
 
-# Custom output directory
-pdfcmp /input -o /output -r
+# Specify an output directory
+pdfcmp ~/PDFs -o ~/CompressedPDFs -r
 
-# Parallel jobs (default: CPU count)
-pdfcmp ~/PDFs -j 4
+# Limit parallel jobs
+pdfcmp ~/Documents -j 4
 ```
 
-### Advanced Options
+### Choose a Backend
 
 ```bash
-# Force overwrite
-pdfcmp file.pdf -f
+# Automatically select a backend
+pdfcmp document.pdf -b auto
 
-# Ghostscript backend (recommended)
-pdfcmp file.pdf -b ghostscript
+# Use Ghostscript
+pdfcmp document.pdf -b ghostscript
 
-# MuPDF backend (if Ghostscript not installed)
-pdfcmp file.pdf -b mupdf
-
-# Verbose logging for debugging
-pdfcmp file.pdf -v
-
-# JSON output for scripting
-pdfcmp file.pdf --json
+# Use MuPDF
+pdfcmp document.pdf -b mupdf
 ```
 
-## Real Compression Results
+### Additional Options
 
-| File | Size | Preset | Result | Savings |
-|------|------|--------|--------|---------|
-| jembut.pdf | 10.91 MB | ebook | 8.08 MB | 26% |
-| jembut.pdf | 10.91 MB | screen | 3.88 MB | 64% |
-| memek.pdf | 24.78 MB | screen | 5.13 MB | 79% |
-| avrbook.pdf | 49.00 MB | default | 5.91 MB | 88% |
+```bash
+# Overwrite existing output files
+pdfcmp document.pdf -f
+
+# Enable verbose logging
+pdfcmp document.pdf -v
+
+# Output results as JSON
+pdfcmp document.pdf --json
+
+# Continue processing after errors in batch mode
+pdfcmp ~/Documents -r --continue-on-error
+
+# Disable the progress bar
+pdfcmp document.pdf --no-progress
+```
+
+## Compression Results
+
+Compression performance varies depending on image resolution, embedded fonts, existing compression, and document structure.
+
+For reference, tests on sample PDFs have demonstrated file-size reductions ranging from approximately 26% to 88%. These figures are examples from individual test files, not guaranteed results.
+
+Always inspect the output document to ensure that its visual quality remains suitable for your needs.
 
 ## How It Works
 
-### Architecture
+`pdfcmp` provides a command-line interface backed by a Rust core library.
 
+```text
+User Command
+     |
+     v
+CLI Argument Parsing
+     |
+     v
+Rust Core
+     |
+     +---- Ghostscript Backend
+     |       Image downsampling
+     |       Image recompression
+     |       PDF rewriting
+     |
+     +---- MuPDF Backend
+             PDF optimization
+             Stream compression
+             Garbage collection
+     |
+     v
+Compressed PDF + Statistics
 ```
-┌─────────────────────────────────────────────┐
-│           User Command (pdfcmp)            │
-│  CLI parsing, validation, progress bar     │
-└──────────────┬──────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│           Rust (core library)              │
-│  Backend selector, safety checks, stats    │
-└──────────────┬──────────────────────────────┘
-               │
-               ├─ Ghostscript (preferred)
-               │   • Image downsampling
-               │   • JPEG recompression
-               │   • Color optimization
-               │
-               └─ MuPDF (fallback)
-                   • Stream compression
-                   • Garbage collection
-                   • Font compression
-```
 
-### Backend Comparison
+### Ghostscript
 
-**Ghostscript** (primary):
-- Uses `gs -sDEVICE=pdfwrite` subprocess
-- Aggressive image compression (downsamples, recompresses JPEG)
-- Best for image-heavy PDFs (books, scanned docs, presentations)
-- Requires `ghostscript` package installed (`gs` command)
-- ~70-90% compression on typical PDFs
+Ghostscript is the recommended backend for image-heavy documents. It can downsample and recompress images while rewriting the PDF.
 
-**MuPDF** (fallback):
-- Uses `mupdf` crate (statically linked)
-- Stream compression, garbage collection, font compression
-- Works without external dependencies
-- Slower compression, smaller size increase
-- Best for text-heavy PDFs or if Ghostscript unavailable
+Ghostscript must be installed separately and available through the `gs` command.
+
+### MuPDF
+
+MuPDF provides an alternative backend for PDF optimization. Its compression results depend on the document and the transformations available through the library.
+
+The MuPDF backend is integrated through Rust bindings, but build-time system requirements may vary by environment.
 
 ## Safety Features
 
-- ✅ Original files never modified
-- ✅ Atomic writes (temp file → rename on success)
-- ✅ Cleanup on failure (removes partial output)
-- ✅ Size increase detection (error if compressed > original)
-- ✅ Encrypted PDF rejection (clear error message)
+- Original input files are not modified.
+- Output files are written through a temporary-file workflow.
+- Failed operations attempt to clean up incomplete output.
+- Existing output files are protected unless `--force` is used.
+- Encrypted PDFs that the application cannot process are rejected with an error.
 
-## Options Reference
+## Command Reference
 
-```
+```text
 Usage: pdfcmp [OPTIONS] <PATH>
 
 Arguments:
-  <PATH>     Input PDF file or directory (auto-detects batch mode)
+  <PATH>                  Input PDF file or directory
 
 Options:
-  -o, --output <PATH>      Output file or directory (default: auto-generated)
-  -p, --preset <PRESET>    Compression preset [screen|ebook|printer|prepress]
-                           [default: ebook]
-  -b, --backend <BACKEND>  Backend [auto|mupdf|ghostscript]
-                           [default: auto]
-  -f, --force              Overwrite output files if they exist
-  -r, --recursive          Recursively process subdirectories
-      --suffix <SUFFIX>    Output suffix for batch mode [default: _compressed]
-  -j, --jobs <N>           Maximum parallel jobs [default: CPU count]
-      --continue-on-error  Continue on error in batch mode
-      --progress           Show progress bar [default: true]
-      --no-progress        Disable progress bar
-      --json               Output as JSON
-  -v, --verbose            Enable verbose logging
+  -o, --output <PATH>     Output file or directory
+  -p, --preset <PRESET>   Compression preset
+                          [screen|ebook|printer|prepress]
+  -b, --backend <BACKEND> Backend selection
+                          [auto|mupdf|ghostscript]
+  -f, --force             Overwrite existing output files
+  -r, --recursive         Process subdirectories recursively
+      --suffix <SUFFIX>   Output suffix for batch mode
+  -j, --jobs <N>          Maximum number of parallel jobs
+      --continue-on-error Continue after errors in batch mode
+      --progress          Enable progress bar
+      --no-progress       Disable progress bar
+      --json               Output results as JSON
+  -v, --verbose           Enable verbose logging
+  -h, --help              Print help information
 ```
 
-## Examples
-
-### Reduce PDF for email attachment
-```bash
-pdfcmp large_report.pdf -p screen -o email_report.pdf
-# Typical: 60-80% reduction for image-heavy PDFs
-```
-
-### Archive for long-term storage
-```bash
-pdfcmp ~/Archive -o ~/Archive_Compressed -r --preset prepress
-# Minimal quality loss, preserves fonts and structure
-```
-
-### Optimize for e-reader
-```bash
-pdfcmp textbook.pdf -p ebook -o textbook_ebook.pdf
-# Balanced quality/size for 6-10" screens
-```
-
-### Maximum compression (accept quality loss)
-```bash
-pdfcmp draft.pdf -p screen -o draft_tiny.pdf
-# Aggressive: ~70-90% reduction
-```
-
-## Requirements
-
-### Runtime
-- Linux kernel 3.2+ (any modern distro)
-- Ghostscript 9.50+ (`gs` command, recommended)
-- x86_64, ARM64, or other common architectures
-
-### Build
-- Rust 1.75+
-- `ghostscript` package (for Ghostscript backend)
-- ~1.5 GB RAM for compilation
-
-## Installation by Distribution
-
-| Distribution | Install Ghostscript | Build pdfcmp |
-|--------------|---------------------|--------------|
-| Ubuntu/Debian | `sudo apt install ghostscript` | `cargo install --path cli` |
-| Fedora | `sudo dnf install ghostscript` | `cargo install --path cli` |
-| Arch Linux | `sudo pacman -S ghostscript` | `cargo install --path cli` |
-| Alpine | `sudo apk add ghostscript` | `cargo install --path cli` |
+Run `pdfcmp --help` for the options supported by your installed version.
 
 ## Limitations
 
-- ❌ No OCR (can't add searchable text to scanned PDFs)
-- ❌ No password removal (encrypted PDFs are rejected)
-- ❌ No form flattening (interactive forms preserved as-is)
-- ❌ JPEG-only image re-encoding (no WebP/AVIF/HEIC)
-- ❌ Single-threaded per file (parallel only across files in batch)
+- Does not perform OCR on scanned documents.
+- Does not remove passwords or bypass PDF encryption.
+- Does not flatten interactive PDF forms.
+- Compression effectiveness varies by document.
+- Parallel processing applies across files in batch mode, rather than necessarily speeding up an individual file.
+- Output quality should be checked when using aggressive compression presets.
 
 ## License
 
-MIT OR Apache-2.0
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Credits
 
-- **Ghostscript** - PDF writing and image compression (GPL v2)
-- **MuPDF** - PDF parsing and optimization (AGPL v3)
-- **mupdf crate** - Rust bindings to MuPDF
-- **clap** - CLI argument parsing
-- **indicatif** - Progress bars
-- **rayon** - Parallel batch processing
+- **Ghostscript:** PDF writing and image compression.
+- **MuPDF:** PDF parsing and optimization.
+- **mupdf crate:** Rust bindings for MuPDF.
+- **clap:** Command-line argument parsing.
+- **indicatif:** Progress bars.
+- **rayon:** Parallel batch processing.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-thing`)
-3. Make changes with tests
-4. Run `cargo test` and verify with real PDFs
-5. Submit a pull request
+Contributions, bug reports, and suggestions are welcome.
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes and add tests where appropriate.
+4. Run `cargo test --workspace`.
+5. Submit a pull request.
 
 ## Changelog
 
-### 0.1.0 (Initial Release)
-- Simple beginner-friendly CLI (no subcommands)
-- Ghostscript backend with aggressive image compression
-- MuPDF fallback for offline/dependency-free mode
-- Auto-detect single file vs batch mode
-- 4 compression presets (screen/ebook/printer/prepress)
-- Parallel batch processing
-- Safety guarantees (atomic writes, cleanup on failure)
-- Real-time progress bars and detailed stats
+### 0.1.0
+
+- Initial CLI release.
+- Added Ghostscript and MuPDF backends.
+- Added four compression presets.
+- Added single-file and batch processing.
+- Added parallel batch execution.
+- Added output safety checks and compression statistics.
+- Added JSON output and progress reporting.

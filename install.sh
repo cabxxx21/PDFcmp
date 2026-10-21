@@ -35,10 +35,10 @@ else
 fi
 
 # Build
-echo -e "\n${YELLOW}Building pdfcmp...${NC}"
-cargo build --release
+echo -e "\n${YELLOW}Building pdfcmp and pdfcmp-tui...${NC}"
+cargo build --release --package pdfcmp --package pdfcmp-tui
 
-if [ ! -f "target/release/pdfcmp" ]; then
+if [ ! -f "target/release/pdfcmp" ] || [ ! -f "target/release/pdfcmp-tui" ]; then
     echo -e "${RED}✗ Build failed${NC}"
     exit 1
 fi
@@ -58,7 +58,9 @@ fi
 # Install
 echo -e "\n${YELLOW}Installing to $INSTALL_DIR...${NC}"
 cp target/release/pdfcmp "$INSTALL_DIR/pdfcmp"
+cp target/release/pdfcmp-tui "$INSTALL_DIR/pdfcmp-tui"
 chmod +x "$INSTALL_DIR/pdfcmp"
+chmod +x "$INSTALL_DIR/pdfcmp-tui"
 
 # Verify PATH
 if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
@@ -80,16 +82,20 @@ fi
 
 # Summary
 echo -e "\n${GREEN}=== Installation Complete ===${NC}"
-echo "Binary location: $INSTALL_DIR/pdfcmp"
+echo "Binaries installed:"
+echo "  - $INSTALL_DIR/pdfcmp (CLI)"
+echo "  - $INSTALL_DIR/pdfcmp-tui (TUI)"
 if [ $NEED_PATH -eq 1 ]; then
     echo ""
     echo -e "${YELLOW}Next steps:${NC}"
     echo "1. Add to PATH (see above)"
     echo "2. Reload shell: source ~/.bashrc  (or ~/.zshrc)"
     echo "3. Try: pdfcmp --help"
+    echo "    or: pdfcmp-tui"
 else
     echo ""
     echo -e "${YELLOW}Try it now:${NC}"
-    echo "  pdfcmp --help"
-    echo "  pdfcmp document.pdf"
+    echo "  pdfcmp --help          (CLI interface)"
+    echo "  pdfcmp-tui             (TUI interface - press 'o' to add files)"
+    echo "  pdfcmp document.pdf    (quick CLI compression)"
 fi

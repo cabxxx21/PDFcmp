@@ -105,6 +105,8 @@ impl PdfBackend for GhostscriptBackend {
 
         let status = Command::new("gs")
             .args(&args[1..]) // Skip "gs" as it's the program name
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
             .status()
             .map_err(|e| CompressionError::Backend(format!("Failed to execute gs: {}", e)))?;
 

@@ -78,6 +78,13 @@ PDFcmp/
 │   │   ├── stats.rs
 │   │   └── util.rs
 │   └── Cargo.toml
+├── tui/
+│   ├── src/
+│   │   ├── app.rs
+│   │   ├── main.rs
+│   │   ├── types.rs
+│   │   └── ui.rs
+│   └── Cargo.toml
 ├── tests/
 │   └── integration.rs
 ├── .gitignore
@@ -175,9 +182,72 @@ pdfcmp document.pdf --json
 
 # Continue processing after errors in batch mode
 pdfcmp ~/Documents -r --continue-on-error
+```
 
-# Disable the progress bar
-pdfcmp document.pdf --no-progress
+## TUI (Terminal User Interface)
+
+The `pdfcmp-tui` binary provides an interactive terminal interface for compressing PDFs.
+
+### Installation
+
+```bash
+# Build with default tinyfiledialogs picker (portable, no GTK dependency)
+cargo install --path tui
+
+# Or build with native GTK dialog (requires GTK development libraries)
+cargo install --path tui --features native-dialog
+```
+
+### Usage
+
+```bash
+# Launch TUI, then press 'o' to select PDF files
+pdfcmp-tui
+
+# Pre-load files from command line
+pdfcmp-tui file1.pdf file2.pdf
+
+# Pre-load files from directory
+pdfcmp-tui ~/Documents/*.pdf
+```
+
+### Key Bindings
+
+| Key | Action |
+|-----|--------|
+| `↑` `↓` | Navigate file list |
+| `Tab` / `Shift+Tab` | Switch focus (Files → Preset → Backend → Output) |
+| `←` `→` | Change preset / backend (when focused) |
+| `Enter` | Start compression |
+| `o` | Open file picker (multi-select) |
+| `Space` | Toggle file selection |
+| `c` | Cancel running compression |
+| `h` | Toggle help panel |
+| `q` / `Esc` | Quit |
+
+### Features
+
+- **Multi-file selection** — Add/remove PDFs interactively
+- **Real-time compression** — Files compressed in background thread; UI stays responsive
+- **Live status** — Per-file progress, compressed size, and savings ratio in table
+- **Auto backend** — Automatically picks best available (Ghostscript preferred, falls back to MuPDF)
+- **Portable file picker** — Uses `tinyfiledialogs` by default (no heavy desktop dependencies); optional `rfd` native dialogs via `--features native-dialog`
+
+### Screenshots
+
+```
+┌─ Files ──────────────────────────────────────────────────────────────┐
+│  ▸ report.pdf          5.2 MB    1.8 MB    −65%    Completed        │
+│    presentation.pdf    12.4 MB   8.1 MB    −35%    Compressing ⠋    │
+│    notes.pdf           2.1 MB    —        —      Pending            │
+└──────────────────────────────────────────────────────────────────────┘
+┌─ Preset ──────────────┐  ┌─ Backend ────────────────┐  ┌─ Output ──┐
+│ Screen (72 dpi)       │  │ Auto (best available) ▸  │  │ ./output/ │
+│ ▸ Ebook (150 dpi)     │  │ Ghostscript              │  │           │
+│ Printer (300 dpi)     │  │ MuPDF                    │  │           │
+│ Prepress (300 dpi)    │  │                          │  │           │
+└───────────────────────┘  └──────────────────────────┘  └───────────┘
+Status: Compressing presentation.pdf... ⠋ | Done! 2 completed, 0 failed. Saved 42% (9.3 MB)
 ```
 
 ## Compression Results
@@ -222,6 +292,8 @@ Compression effectiveness varies by document and backend.
 
 ## Command Reference
 
+### CLI (`pdfcmp`)
+
 ```text
 Usage: pdfcmp [OPTIONS] <PATH>
 
@@ -239,14 +311,33 @@ Options:
       --suffix <SUFFIX>   Output suffix for batch mode
   -j, --jobs <N>          Maximum number of parallel jobs
       --continue-on-error Continue after errors in batch mode
-      --progress          Enable progress bar
-      --no-progress       Disable progress bar
       --json               Output results as JSON
   -v, --verbose           Enable verbose logging
   -h, --help              Print help information
 ```
 
-Run `pdfcmp --help` to see the options supported by your installed version.
+### TUI (`pdfcmp-tui`)
+
+```text
+Usage: pdfcmp-tui [FILES]...
+
+Arguments:
+  [FILES]...              Optional PDF files to pre-load
+
+Keys:
+  ↑/↓           Navigate file list
+  Tab           Next panel (Files → Preset → Backend → Output)
+  Shift+Tab     Previous panel
+  ←/→           Change preset / backend (when focused)
+  Enter         Start compression
+  o             Open file picker (multi-select)
+  Space         Toggle file selection
+  c             Cancel compression
+  h             Toggle help
+  q / Esc       Quit
+```
+
+Run `pdfcmp --help` or `pdfcmp-tui --help` to see options supported by your installed version.
 
 ## Limitations
 
@@ -269,7 +360,6 @@ Third-party dependencies retain their respective licenses. See the relevant proj
 - **MuPDF:** PDF parsing and optimization.
 - **mupdf crate:** Rust bindings for MuPDF.
 - **clap:** Command-line argument parsing.
-- **indicatif:** Progress bars.
 - **rayon:** Parallel batch processing.
 
 ## Contributing
@@ -284,6 +374,15 @@ Contributions, bug reports, and suggestions are welcome.
 
 ## Changelog
 
+### 0.2.0
+
+- Added TUI (`pdfcmp-tui`) with interactive file picker, real-time compression, and live status table
+- Added `tinyfiledialogs` file picker (portable, no GTK required); optional native GTK dialog via `native-dialog` feature
+- Auto backend selection (Ghostscript preferred, falls back to MuPDF)
+- Removed QPDF backend reference
+- Ghostscript stdout/stderr silenced to prevent TUI rendering corruption
+- Removed CLI progress bar (`--progress`/`--no-progress` flags and `indicatif` dependency); replaced with simple status messages
+
 ### 0.1.0
 
 - Initial CLI release.
@@ -292,4 +391,4 @@ Contributions, bug reports, and suggestions are welcome.
 - Added single-file and batch processing.
 - Added parallel batch execution.
 - Added output safety checks and compression statistics.
-- Added JSON output and progress reporting.
+- Added JSON output and status reporting.

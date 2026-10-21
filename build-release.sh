@@ -48,9 +48,9 @@ export CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=musl-gcc
 
 # Build
 echo -e "${BLUE}Building release binary (musl static)...${NC}"
-cargo build --release --target x86_64-unknown-linux-musl --bin pdf-compressor
+cargo build --release --target x86_64-unknown-linux-musl --bin pdfcmp
 
-BINARY_PATH="target/x86_64-unknown-linux-musl/release/pdf-compressor"
+BINARY_PATH="target/x86_64-unknown-linux-musl/release/pdfcmp"
 
 if [[ ! -f "$BINARY_PATH" ]]; then
     echo -e "${RED}Build failed: binary not found at $BINARY_PATH${NC}"
@@ -115,7 +115,7 @@ startxref
 EOF
 
 OUTPUT_PDF="/tmp/test_output.pdf"
-if "$BINARY_PATH" compress -i "$TEST_PDF" -o "$OUTPUT_PDF" --preset screen --force > /dev/null 2>&1; then
+if "$BINARY_PATH" "$TEST_PDF" -o "$OUTPUT_PDF" -p screen -f > /dev/null 2>&1; then
     echo -e "${GREEN}✓ Compression test passed${NC}"
     rm -f "$TEST_PDF" "$OUTPUT_PDF"
 else
@@ -129,6 +129,6 @@ echo -e "${GREEN}=== Build successful! ===${NC}"
 echo -e "Binary: ${BLUE}$BINARY_PATH${NC}"
 echo
 echo "To install system-wide:"
-echo "  sudo cp $BINARY_PATH /usr/local/bin/pdf-compressor"
+echo "  sudo cp $BINARY_PATH /usr/local/bin/pdfcmp"
 echo
 echo "Or copy to any directory in your PATH."

@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use rayon::prelude::*;
-use crate::output::create_batch_progress_bar;
 
 /// Process multiple PDF files in parallel
 pub fn process_batch(
@@ -14,7 +13,6 @@ pub fn process_batch(
     jobs: Option<usize>,
     force: bool,
     _continue_on_error: bool,
-    progress: bool,
     backend: Option<&str>,
 ) -> BatchSummary {
     let mut summary = BatchSummary::new();
@@ -31,19 +29,15 @@ pub fn process_batch(
             .unwrap();
     }
 
-    let pb = create_batch_progress_bar(inputs.len() as u64, progress);
     let success_count = Arc::new(AtomicUsize::new(0));
     let fail_count = Arc::new(AtomicUsize::new(0));
 
     let results: Vec<BatchResult> = inputs.par_iter().map(|input| {
         let input_path = input.clone();
-        let pb = pb.clone();
         let success_count = success_count.clone();
         let fail_count = fail_count.clone();
 
         let result = process_single_file(&input_path, output_dir, suffix, options, force, backend);
-
-        pb.inc(1);
 
         match &result {
             BatchResult { stats: Some(_), .. } => {
@@ -55,16 +49,8 @@ pub fn process_batch(
             _ => {}
         }
 
-        pb.set_message(format!(
-            "OK: {}  Failed: {}",
-            success_count.load(Ordering::Relaxed),
-            fail_count.load(Ordering::Relaxed)
-        ));
-
         result
     }).collect();
-
-    pb.finish_and_clear();
 
     for result in results {
         match &result {
@@ -169,7 +155,6 @@ mod tests {
             &options,
             Some(2),
             false,
-            true,
             false,
             None,
         );

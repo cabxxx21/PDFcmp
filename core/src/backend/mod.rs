@@ -3,6 +3,7 @@ use crate::stats::CompressionStats;
 use crate::error::Result;
 use std::path::Path;
 
+#[cfg(feature = "mupdf")]
 mod mupdf;
 mod ghostscript;
 
@@ -55,6 +56,14 @@ impl BackendRegistry {
     pub fn available_backends(&self) -> Vec<&'static str> {
         self.backends.iter().filter(|b| b.is_available()).map(|b| b.name()).collect()
     }
+
+    /// Get all available backends in priority order
+    pub fn available_backends_ordered(&self) -> Vec<&dyn PdfBackend> {
+        self.backends.iter()
+            .filter(|b| b.is_available())
+            .map(|b| b.as_ref())
+            .collect()
+    }
 }
 
 impl Default for BackendRegistry {
@@ -62,7 +71,8 @@ impl Default for BackendRegistry {
         let mut registry = Self::new();
         // Register Ghostscript first (preferred for compression)
         registry.register(Box::new(crate::backend::ghostscript::GhostscriptBackend::new()));
-        // MuPDF as fallback
+        // MuPDF as fallback (optional feature)
+        #[cfg(feature = "mupdf")]
         registry.register(Box::new(crate::backend::mupdf::MuPdfBackend::new()));
         registry
     }

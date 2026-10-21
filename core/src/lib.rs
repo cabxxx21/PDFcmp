@@ -14,12 +14,24 @@ pub use options::{CompressOptions, DownsampleFactor, FontSubset, ImageQuality, P
 pub use stats::{BatchResult, BatchSummary, CompressionStats};
 pub use util::{atomic_write, default_output_path, ensure_output_dir, file_size, find_pdfs, format_bytes, is_pdf_file, validate_paths};
 
-/// High-level compression function using default backend
+/// High-level compression function using default backend with fallback
 pub fn compress(input: &std::path::Path, output: &std::path::Path, options: &CompressOptions) -> Result<CompressionStats> {
     let registry = BackendRegistry::default();
-    let backend = registry.default_backend()
-        .ok_or_else(|| CompressionError::Backend("No backend available".into()))?;
-    backend.compress(input, output, options)
+    let available = registry.available_backends_ordered();
+    if available.is_empty() {
+        return Err(CompressionError::Backend("No backend available".into()));
+    }
+    let mut last_error = None;
+    for backend in available {
+        match backend.compress(input, output, options) {
+            Ok(stats) => return Ok(stats),
+            Err(e) => {
+                let _ = std::fs::remove_file(output);
+                last_error = Some(e);
+            }
+        }
+    }
+    Err(last_error.unwrap_or_else(|| CompressionError::Backend("All backends failed".into())))
 }
 
 /// Compress with specific backend by name

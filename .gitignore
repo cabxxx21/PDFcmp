@@ -27,3 +27,14 @@ Thumbs.db
 
 # Backup
 *~
+
+# Development & Agent Documentation
+*_COMPLETE.md
+MILESTONE_*.md
+TUI_TESTING.md
+PHASE_1_COMPLETE.md
+test-tui.sh
+test_compression.sh
+
+# Generated test output
+/output/

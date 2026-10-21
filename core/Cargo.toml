@@ -13,11 +13,15 @@ thiserror = { workspace = true }
 serde = { workspace = true }
 toml = { workspace = true }
 tempfile = { workspace = true }
-mupdf = { workspace = true }
 walkdir = { workspace = true }
 rayon = { workspace = true }
 humantime = { workspace = true }
+mupdf = { workspace = true, optional = true }
 
 [dev-dependencies]
 assert_fs = "1.0"
 predicates = "3.0"
+
+[features]
+mupdf = ["dep:mupdf"]
+default = []

@@ -46,14 +46,6 @@ pub struct Args {
     #[arg(long)]
     pub continue_on_error: bool,
 
-    /// Show progress bar
-    #[arg(long, default_value = "true")]
-    pub progress: bool,
-
-    /// Disable progress bar
-    #[arg(long, conflicts_with = "progress")]
-    pub no_progress: bool,
-
     /// Output as JSON
     #[arg(long)]
     pub json: bool,
@@ -197,7 +189,6 @@ impl Args {
         {
             // User provided custom options
             opts.preset = Preset::Custom;
-            opts = CompressOptions::preset(Preset::Custom);
         }
 
         if let Some(q) = self.image_quality {

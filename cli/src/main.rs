@@ -6,7 +6,7 @@ mod output;
 
 use args::Args;
 use batch::process_batch;
-use output::{create_progress_bar, print_batch_summary, print_stats};
+use output::{print_batch_start, print_batch_summary, print_compress_start, print_stats};
 use pdf_compressor_core::{compress, compress_with_backend};
 use clap::Parser;
 use std::process;
@@ -60,16 +60,13 @@ fn run_compress(args: &Args) -> anyhow::Result<()> {
     }
 
     // Show progress
-    let pb = create_progress_bar(args.progress && !args.no_progress);
-    pb.set_message(format!("Compressing {}...", args.input.display()));
+    print_compress_start(&args.input);
 
     let stats = if let Some(backend) = args.backend_name() {
         compress_with_backend(backend, &args.input, &output, &options)?
     } else {
         compress(&args.input, &output, &options)?
     };
-
-    pb.finish_and_clear();
 
     print_stats(&stats, args.json);
 
@@ -89,7 +86,7 @@ fn run_batch(args: &Args) -> anyhow::Result<()> {
         return Ok(());
     }
 
-    println!("Found {} PDF file(s) to compress", pdfs.len());
+    print_batch_start(pdfs.len());
 
     let options = args.to_options()?;
     let output_dir = args.output_dir().map(|p| p.as_path());
@@ -102,7 +99,6 @@ fn run_batch(args: &Args) -> anyhow::Result<()> {
         args.jobs,
         args.force,
         args.continue_on_error,
-        args.progress && !args.no_progress,
         args.backend_name(),
     );
 

@@ -1,0 +1,33 @@
+[package]
+name = "pdfcmp-tui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "TUI for PDFcmp"
+
+[[bin]]
+name = "pdfcmp-tui"
+path = "src/main.rs"
+
+[dependencies]
+ratatui = "0.30"
+crossterm = "0.29"
+tokio = { version = "1.41", features = ["full"] }
+tracing = "0.1"
+anyhow = "1.0"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+walkdir = "2.5"
+rand = "0.8"
+clap = { version = "4.5", features = ["derive"] }
+tinyfiledialogs = "3.9"
+rfd = { version = "0.14", optional = true }
+pdf_compressor_core = { path = "../core", features = ["mupdf"] }
+
+[features]
+default = []
+native-dialog = ["rfd"]
+
+[dev-dependencies]
+crossterm = "0.29"

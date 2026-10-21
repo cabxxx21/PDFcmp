@@ -2,6 +2,8 @@
 
 A lightweight PDF compressor for Linux, built with Rust, Ghostscript, and MuPDF. Designed to reduce PDF file sizes through a straightforward command-line interface.
 
+![PDFcmp TUI Screenshot](docs/TUI21oct.png)
+
 ## Quick Start
 
 ```bash

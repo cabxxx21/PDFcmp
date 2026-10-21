@@ -310,7 +310,6 @@ Keys:
   ↑/↓           Navigate file list
   Tab           Next panel (Files → Preset → Backend → Output)
   Shift+Tab     Previous panel
-  ←/→           Change preset / backend (when focused)
   Enter         Start compression
   o             Open file picker (multi-select)
   Space         Toggle file selection

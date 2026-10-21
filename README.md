@@ -217,7 +217,6 @@ pdfcmp-tui ~/Documents/*.pdf
 |-----|--------|
 | `↑` `↓` | Navigate file list |
 | `Tab` / `Shift+Tab` | Switch focus (Files → Preset → Backend → Output) |
-| `←` `→` | Change preset / backend (when focused) |
 | `Enter` | Start compression |
 | `o` | Open file picker (multi-select) |
 | `Space` | Toggle file selection |
@@ -232,23 +231,6 @@ pdfcmp-tui ~/Documents/*.pdf
 - **Live status** — Per-file progress, compressed size, and savings ratio in table
 - **Auto backend** — Automatically picks best available (Ghostscript preferred, falls back to MuPDF)
 - **Portable file picker** — Uses `tinyfiledialogs` by default (no heavy desktop dependencies); optional `rfd` native dialogs via `--features native-dialog`
-
-### Screenshots
-
-```
-┌─ Files ──────────────────────────────────────────────────────────────┐
-│  ▸ report.pdf          5.2 MB    1.8 MB    −65%    Completed        │
-│    presentation.pdf    12.4 MB   8.1 MB    −35%    Compressing ⠋    │
-│    notes.pdf           2.1 MB    —        —      Pending            │
-└──────────────────────────────────────────────────────────────────────┘
-┌─ Preset ──────────────┐  ┌─ Backend ────────────────┐  ┌─ Output ──┐
-│ Screen (72 dpi)       │  │ Auto (best available) ▸  │  │ ./output/ │
-│ ▸ Ebook (150 dpi)     │  │ Ghostscript              │  │           │
-│ Printer (300 dpi)     │  │ MuPDF                    │  │           │
-│ Prepress (300 dpi)    │  │                          │  │           │
-└───────────────────────┘  └──────────────────────────┘  └───────────┘
-Status: Compressing presentation.pdf... ⠋ | Done! 2 completed, 0 failed. Saved 42% (9.3 MB)
-```
 
 ## Compression Results
 
@@ -378,10 +360,7 @@ Contributions, bug reports, and suggestions are welcome.
 
 - Added TUI (`pdfcmp-tui`) with interactive file picker, real-time compression, and live status table
 - Added `tinyfiledialogs` file picker (portable, no GTK required); optional native GTK dialog via `native-dialog` feature
-- Auto backend selection (Ghostscript preferred, falls back to MuPDF)
-- Removed QPDF backend reference
-- Ghostscript stdout/stderr silenced to prevent TUI rendering corruption
-- Removed CLI progress bar (`--progress`/`--no-progress` flags and `indicatif` dependency); replaced with simple status messages
+- FIxed auto backend selection (Ghostscript preferred, falls back to MuPDF)
 
 ### 0.1.0
 
